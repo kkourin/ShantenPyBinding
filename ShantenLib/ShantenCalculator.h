@@ -12,10 +12,18 @@ class ShantenCalculator {
             int One = 0;
             int Two = 0;
         };
+        struct ImprovementCountList {
+            int Neg = 0;
+            int Zero = 0;
+            int One = 0;
+            int Two = 0;
+            std::vector<std::tuple<int, int, int>> TwoImprovers;
+        };
         ShantenCalculator() = default;
         int CalculateShanten(std::vector<int>& hand);
         // Returns <(first draw, second draw), (best shanten, weight)>
         std::map<std::pair<int, int>, ImprovementCount> CalculateTwoStep(std::vector<int> hand, std::vector<int> wall);
+        std::map<std::pair<int, int>, ImprovementCountList> CalculateTwoStepList(std::vector<int> hand, std::vector<int> wall);
         std::map<int, ImprovementCount> GetOneShantenCounts(std::vector<int> hand, std::vector<int> wall);
         static std::map<std::pair<int, int>, int> WallPairs(std::vector<int> wall);
         static std::map<int, ImprovementCount> AccumulateChoices(std::map<std::pair<int, int>, ImprovementCount> twoStepMap);

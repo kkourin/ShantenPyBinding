@@ -61,6 +61,58 @@ std::map<std::pair<int, int>, ShantenCalculator::ImprovementCount> ShantenCalcul
 	return shanten_map;
 }
 
+std::map<std::pair<int, int>, ShantenCalculator::ImprovementCountList> ShantenCalculator::CalculateTwoStepList(std::vector<int> hand, std::vector<int> wall)
+{
+	std::map<std::pair<int, int>, ImprovementCountList> shanten_map;
+	auto wallPairs = WallPairs(wall);
+
+	int originalShanten = CalculateShanten(hand);
+
+	for (auto elem : wallPairs)
+	{
+		int firstDraw = elem.first.first;
+		int secondDraw = elem.first.second;
+		int weight = elem.second;
+		for (size_t i = 0; i < hand.size(); ++i) {
+			if (hand[i] == 0) {
+				continue;
+			}
+			// Try discarding this tile for the first tile
+			SwapTile(hand, i, firstDraw);
+			for (size_t j = 0; j < hand.size(); ++j) {
+				if (hand[j] == 0) {
+					continue;
+				}
+				// Discard tile j for second tile
+				SwapTile(hand, j, secondDraw);
+				int shanten = CalculateShanten(hand);
+				int shantenDiff = originalShanten - shanten;
+				if (shanten_map.find({ i, j }) == shanten_map.end()) {
+					shanten_map.insert({ { i, j }, ImprovementCountList() });
+				}
+				auto& counter = shanten_map[{i, j}];
+				if (shantenDiff < 0) {
+					counter.Neg += weight;
+				}
+				else if (shantenDiff == 0) {
+					counter.Zero += weight;
+				}
+				else if (shantenDiff == 1) {
+					counter.One += weight;
+				}
+				else if (shantenDiff == 2) {
+					counter.TwoImprovers.push_back({ firstDraw, secondDraw, weight });
+					counter.Two += weight;
+				}
+				RevertSwap(hand, j, secondDraw);
+			}
+			RevertSwap(hand, i, firstDraw);
+		}
+	}
+
+	return shanten_map;
+}
+
 std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::GetOneShantenCounts(std::vector<int> hand, std::vector<int> wall)
 {
 	std::map<int, ImprovementCount> shanten_map;

@@ -1,5 +1,5 @@
 
-from ShantenLib import fast_tanh2, ShantenCalculator
+from ShantenLib import ShantenCalculator
 import pprint
 
 def parseTenhouHand(hand):
@@ -27,7 +27,11 @@ def tileToString(i):
 def printResult(r):
     for k,v in r.items():
         print("{0}:\t{1}".format(tileToString(k), v))
-
+def printResultList(r):
+    for k,v in r.items():
+        print("{0} {1}:\t{2}\t{3}".format(tileToString(k[0]),tileToString(k[1]), v, makeReadableList(v.Pairs)))
+def makeReadableList(pairs):
+    return [(tileToString(i), tileToString(j), w) for i,j,w in pairs]
 if __name__ == "__main__":
     hand6 = parseTenhouHand("455788m307p23378s")
     s = ShantenCalculator()
@@ -68,7 +72,7 @@ if __name__ == "__main__":
       0,0,1,0,1,0,1,0,1,
       0,0,0,0,0,0,0
     ]
-    hand6 = parseTenhouHand("2368m24888p33567s")
+    hand6 = parseTenhouHand("557m24889s23789p2s")
 
 
     pprint.PrettyPrinter(indent=4).pprint(s.GetTwoShantenCounts(hand1, wall))
@@ -89,3 +93,4 @@ if __name__ == "__main__":
     pprint.PrettyPrinter(indent=4).pprint(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
     printResult(s.GetTwoShantenCounts(hand6, subtractHand(wall, hand6)))
     printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
+    printResultList(s.CalculateTwoStepList(hand6, subtractHand(wall, hand6)))
