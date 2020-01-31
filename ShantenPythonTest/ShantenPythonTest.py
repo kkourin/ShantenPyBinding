@@ -1,6 +1,7 @@
 
 from ShantenLib import ShantenCalculator
 import pprint
+from random import shuffle
 
 def parseTenhouHand(hand):
     buffer = []
@@ -32,7 +33,8 @@ def printResultList(r):
         print("{0} {1}:\t{2}\t{3}".format(tileToString(k[0]),tileToString(k[1]), v, makeReadableList(v.Pairs)))
 def makeReadableList(pairs):
     return [(tileToString(i), tileToString(j), w) for i,j,w in pairs]
-if __name__ == "__main__":
+def runTests():
+    
     hand6 = parseTenhouHand("455788m307p23378s")
     s = ShantenCalculator()
 
@@ -72,25 +74,82 @@ if __name__ == "__main__":
       0,0,1,0,1,0,1,0,1,
       0,0,0,0,0,0,0
     ]
-    hand6 = parseTenhouHand("557m24889s23789p2s")
+    hand6 = parseTenhouHand("99m257779p345669s")
+
+    printResult(s.GetTwoStepCounts(hand1, subtractHand(wall, hand1)))
+    printResult(s.GetTwoStepCounts(hand2, subtractHand(wall, hand2)))
+    printResult(s.GetTwoStepCounts(hand3, subtractHand(wall, hand3)))
+    printResult(s.GetTwoStepCounts(hand4, subtractHand(wall, hand4)))
+    printResult(s.GetTwoStepCounts(hand5, subtractHand(wall, hand5)))
 
 
-    pprint.PrettyPrinter(indent=4).pprint(s.GetTwoShantenCounts(hand1, wall))
-    pprint.PrettyPrinter(indent=4).pprint(s.GetOneShantenCounts(hand1, wall))
+    #pprint.PrettyPrinter(indent=4).pprint(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
+    #printResult(s.GetTwoShantenCounts(hand6, subtractHand(wall, hand6)))
+    #printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
+    #printResultList(s.CalculateTwoStepList(hand6, subtractHand(wall, hand6)))
 
-    pprint.PrettyPrinter(indent=4).pprint(s.GetTwoShantenCounts(hand2, wall))
-    pprint.PrettyPrinter(indent=4).pprint(s.GetOneShantenCounts(hand2, wall))
-
-    pprint.PrettyPrinter(indent=4).pprint(s.GetTwoShantenCounts(hand3, wall))
-    pprint.PrettyPrinter(indent=4).pprint(s.GetOneShantenCounts(hand3, wall))
-
-    pprint.PrettyPrinter(indent=4).pprint(s.GetTwoShantenCounts(hand4, wall))
-    pprint.PrettyPrinter(indent=4).pprint(s.GetOneShantenCounts(hand4, wall))
-
-    pprint.PrettyPrinter(indent=4).pprint(s.GetTwoShantenCounts(hand5, wall))
-    pprint.PrettyPrinter(indent=4).pprint(s.GetOneShantenCounts(hand5, wall))
-
-    pprint.PrettyPrinter(indent=4).pprint(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
-    printResult(s.GetTwoShantenCounts(hand6, subtractHand(wall, hand6)))
+    l = s.GetThreeStepCounts(hand6, subtractHand(wall, hand6))
+    #print("test");
     printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
-    printResultList(s.CalculateTwoStepList(hand6, subtractHand(wall, hand6)))
+    printResult(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
+    printResult(s.GetThreeStepCounts(hand6, subtractHand(wall, hand6)))
+def checkDiff(s, hand, wall):
+    shanten = s.GetShanten(hand) - 1
+    if (shanten != 1):
+        return
+    one = s.GetOneShantenCounts(hand, wall)
+    two = s.GetTwoStepCounts(hand, wall)
+    f1 = max(one.items(), key = lambda kv: kv[1].One)
+    f2 = max(two.items(), key = lambda kv: kv[1].Two)
+    if (f1[0] not in two):
+        return
+    if (f2[0] not in one):
+        return
+
+    compared = two[f1[0]]
+
+    compared2 = one[f2[0]]
+
+    if compared.Two == f2[1].Two:
+        return
+    print(compared2.One, f1[1].One)
+    #if compared2.One == f1[1].One:
+    #    return;
+    ratio = f2[1].Two/compared.Two
+    
+    print("Found hand: {} Shanten: {}".format(convertToTenhouNotation(hand), s.GetShanten(hand) - 1))
+    print("DiscardOne: {} DiscardTwo: {} One shanten: {} Two shanten: {} Ratio: {}".format(tileToString(f1[0]), tileToString(f2[0]), compared.Two, f2[1].Two, ratio))
+def convertToTenhouNotation(hand):
+    d = {0: "m", 1: "p", 2:"s", 3:"z"}
+    tot = [[],[],[],[]]
+    for i,v in enumerate(hand):
+        tot[i//9].extend([(i%9) + 1]*v)
+    totStr = [''.join(map(str,l)) for l in tot]
+    return "{}m{}p{}s{}z".format(totStr[0],totStr[1],totStr[2],totStr[3])
+def convertToHand(tiles):
+    hand = [0 for _ in range(34)]
+    for t in tiles:
+        hand[t] += 1
+    return hand
+def makeHands():
+    while True:
+        f = list(range(34))*4
+        shuffle(f)
+        for i in range(0, len(f), 14):
+            h = f[i:i+14]
+            if len(h) == 14:
+                yield convertToHand(h)
+if __name__ == "__main__":
+    wall = [
+      4,4,4,4,4,4,4,4,4,
+      4,4,4,4,4,4,4,4,4,
+      4,4,4,4,4,4,4,4,4,
+      4,4,4,4,4,4,4
+    ]
+    print(convertToTenhouNotation(wall))
+    s = ShantenCalculator()
+    t = makeHands()
+
+    for _ in range(50000):
+        hand = next(t)
+        checkDiff(s, hand, subtractHand(wall, hand))

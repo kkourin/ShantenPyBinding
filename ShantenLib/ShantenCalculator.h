@@ -2,6 +2,7 @@
 #include "calsht.h"
 #include <map>
 #include <vector>
+#include <tuple>
 
 class ShantenCalculator {
 
@@ -11,23 +12,19 @@ class ShantenCalculator {
             int Zero = 0;
             int One = 0;
             int Two = 0;
+            int Three = 0;
         };
-        struct ImprovementCountList {
-            int Neg = 0;
-            int Zero = 0;
-            int One = 0;
-            int Two = 0;
-            std::vector<std::tuple<int, int, int>> TwoImprovers;
-        };
+
         ShantenCalculator() = default;
         int CalculateShanten(std::vector<int>& hand);
         // Returns <(first draw, second draw), (best shanten, weight)>
-        std::map<std::pair<int, int>, ImprovementCount> CalculateTwoStep(std::vector<int> hand, std::vector<int> wall);
-        std::map<std::pair<int, int>, ImprovementCountList> CalculateTwoStepList(std::vector<int> hand, std::vector<int> wall);
+        std::map<int, ImprovementCount> CalculateTwoStep(std::vector<int> hand, std::vector<int> wall);
+        std::map<int, ImprovementCount> CalculateThreeStep(std::vector<int> hand, std::vector<int> wall);
         std::map<int, ImprovementCount> GetOneShantenCounts(std::vector<int> hand, std::vector<int> wall);
+        int GetShanten(std::vector<int> hand);
         static std::map<std::pair<int, int>, int> WallPairs(std::vector<int> wall);
-        static std::map<int, ImprovementCount> AccumulateChoices(std::map<std::pair<int, int>, ImprovementCount> twoStepMap);
-        std::map<int, ImprovementCount> GetTwoShantenCounts(std::vector<int> hand, std::vector<int> wall);
+        static std::vector < std::pair< std::tuple<int, int, int>, int > > WallTriples(std::vector<int> wall);
+
     private:
         Calsht calsht;
         void SwapTile(std::vector<int>& hand, int tile1, int tile2);

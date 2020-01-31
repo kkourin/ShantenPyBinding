@@ -15,31 +15,21 @@ PYBIND11_MODULE(ShantenLib, m) {
         .def_readwrite("Zero", &ShantenCalculator::ImprovementCount::Zero)
         .def_readwrite("One", &ShantenCalculator::ImprovementCount::One)
         .def_readwrite("Two", &ShantenCalculator::ImprovementCount::Two)
+        .def_readwrite("Three", &ShantenCalculator::ImprovementCount::Three)
         .def("__repr__",
             [](const ShantenCalculator::ImprovementCount& a) {
                 std::stringstream fmt;
-                fmt << "ImprovementCount(Neg=" << a.Neg << ", Zero=" << a.Zero << ", One=" << a.One << ", Two=" << a.Two << ")";
+                fmt << "ImprovementCount(Neg=" << a.Neg << ", Zero=" << a.Zero << ", One=" << a.One << ", Two=" << a.Two << ", Three=" << a.Three << ")";
                 return fmt.str();
             });
-    py::class_<ShantenCalculator::ImprovementCountList>(m, "ImprovementCountList")
-        .def(py::init())
-        .def_readwrite("Neg", &ShantenCalculator::ImprovementCountList::Neg)
-        .def_readwrite("Zero", &ShantenCalculator::ImprovementCountList::Zero)
-        .def_readwrite("One", &ShantenCalculator::ImprovementCountList::One)
-        .def_readwrite("Two", &ShantenCalculator::ImprovementCountList::Two)
-        .def_readwrite("Pairs", &ShantenCalculator::ImprovementCountList::TwoImprovers)
-        .def("__repr__",
-            [](const ShantenCalculator::ImprovementCountList& a) {
-                std::stringstream fmt;
-                fmt << "ImprovementCount(Neg=" << a.Neg << ", Zero=" << a.Zero << ", One=" << a.One << ", Two=" << a.Two << ")";
-                return fmt.str();
-            });
+
     py::class_<ShantenCalculator>(m, "ShantenCalculator")
         .def(py::init())
         .def("GetTwoStepCounts", &ShantenCalculator::CalculateTwoStep)
-        .def("GetTwoShantenCounts", &ShantenCalculator::GetTwoShantenCounts)
+        .def("GetThreeStepCounts", &ShantenCalculator::CalculateThreeStep)
         .def("GetOneShantenCounts", &ShantenCalculator::GetOneShantenCounts)
-        .def("CalculateTwoStepList", &ShantenCalculator::CalculateTwoStepList);
+        .def("GetShanten", &ShantenCalculator::CalculateShanten);
+        
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;
