@@ -27,6 +27,7 @@ PYBIND11_MODULE(ShantenLib, m) {
         .def(py::init())
         .def("GetTwoStepCounts", &ShantenCalculator::CalculateTwoStep)
         .def("GetThreeStepCounts", &ShantenCalculator::CalculateThreeStep)
+        .def("GetThreeStepOnlyCounts", &ShantenCalculator::CalculateThreeStepOnly)
         .def("GetOneShantenCounts", &ShantenCalculator::GetOneShantenCounts)
         .def("GetShanten", &ShantenCalculator::CalculateShanten);
         

@@ -20,6 +20,7 @@ class ShantenCalculator {
         // Returns <(first draw, second draw), (best shanten, weight)>
         std::map<int, ImprovementCount> CalculateTwoStep(std::vector<int> hand, std::vector<int> wall);
         std::map<int, ImprovementCount> CalculateThreeStep(std::vector<int> hand, std::vector<int> wall);
+        std::map<int, ImprovementCount> CalculateThreeStepOnly(std::vector<int> hand, std::vector<int> wall);
         std::map<int, ImprovementCount> GetOneShantenCounts(std::vector<int> hand, std::vector<int> wall);
         int GetShanten(std::vector<int> hand);
         static std::map<std::pair<int, int>, int> WallPairs(std::vector<int> wall);

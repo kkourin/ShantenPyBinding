@@ -88,10 +88,11 @@ def runTests():
     #printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
     #printResultList(s.CalculateTwoStepList(hand6, subtractHand(wall, hand6)))
 
-    l = s.GetThreeStepCounts(hand6, subtractHand(wall, hand6))
+    #l = s.GetThreeStepCounts(hand6, subtractHand(wall, hand6))
     #print("test");
     printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
     printResult(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
+    printResult(s.GetThreeStepOnlyCounts(hand6, subtractHand(wall, hand6)))
     printResult(s.GetThreeStepCounts(hand6, subtractHand(wall, hand6)))
 def checkDiff(s, hand, wall):
     shanten = s.GetShanten(hand) - 1
@@ -140,16 +141,18 @@ def makeHands():
             if len(h) == 14:
                 yield convertToHand(h)
 if __name__ == "__main__":
-    wall = [
-      4,4,4,4,4,4,4,4,4,
-      4,4,4,4,4,4,4,4,4,
-      4,4,4,4,4,4,4,4,4,
-      4,4,4,4,4,4,4
-    ]
-    print(convertToTenhouNotation(wall))
-    s = ShantenCalculator()
-    t = makeHands()
-
-    for _ in range(50000):
-        hand = next(t)
-        checkDiff(s, hand, subtractHand(wall, hand))
+    
+    #wall = [
+    #  4,4,4,4,4,4,4,4,4,
+    #  4,4,4,4,4,4,4,4,4,
+    #  4,4,4,4,4,4,4,4,4,
+    #  4,4,4,4,4,4,4
+    #]
+    #print(convertToTenhouNotation(wall))
+    #s = ShantenCalculator()
+    #t = makeHands()
+#
+#    for _ in range(50000):
+#        hand = next(t)
+#        checkDiff(s, hand, subtractHand(wall, hand))
+    runTests()

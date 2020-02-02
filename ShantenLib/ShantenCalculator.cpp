@@ -75,9 +75,11 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 	int iters = 0;
 	for (auto elem : wallTriples)
 	{
+		/*
 		if (iters % 100 == 0) {
 			std::cout << "progress(" << iters << "/" << wallTriples.size() << ")" << std::endl;
 		}
+		*/
 		const auto& tuple = elem.first;
 		int firstDraw = std::get<0>(tuple);
 		int secondDraw = std::get<1>(tuple);
@@ -112,6 +114,88 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 			RevertSwap(hand, i, firstDraw);
 			if (shanten_map.find(i) == shanten_map.end()) {
 				shanten_map.insert({i, ImprovementCount() });
+			}
+			auto& counter = shanten_map[i];
+			if (bestShantenDiff < 0) {
+				counter.Neg += weight;
+			}
+			else if (bestShantenDiff == 0) {
+				counter.Zero += weight;
+			}
+			else if (bestShantenDiff == 1) {
+				counter.One += weight;
+			}
+			else if (bestShantenDiff == 2) {
+				counter.Two += weight;
+			}
+			else if (bestShantenDiff == 3) {
+				counter.Three += weight;
+			}
+		}
+		iters += 1;
+	}
+
+	return shanten_map;
+}
+
+
+std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateThreeStepOnly(std::vector<int> hand, std::vector<int> wall)
+{
+	std::map<int, ImprovementCount> shanten_map;
+
+	auto wallTriples = WallTriples(wall);
+
+	int originalShanten = CalculateShanten(hand);
+	int iters = 0;
+	for (auto elem : wallTriples)
+	{
+		/*
+		if (iters % 100 == 0) {
+			std::cout << "progress(" << iters << "/" << wallTriples.size() << ")" << std::endl;
+		}
+		*/
+		const auto& tuple = elem.first;
+		int firstDraw = std::get<0>(tuple);
+		int secondDraw = std::get<1>(tuple);
+		int thirdDraw = std::get<2>(tuple);
+		int weight = elem.second;
+		for (size_t i = 0; i < hand.size(); ++i) {
+			if (hand[i] == 0) {
+				continue;
+			}
+			int bestShantenDiff = -1;
+			// Try discarding this tile for the first tile
+			SwapTile(hand, i, firstDraw);
+			if (originalShanten - CalculateShanten(hand) < 1) {
+				RevertSwap(hand, i, firstDraw);
+				continue;
+			}
+			for (size_t j = 0; j < hand.size(); ++j) {
+				if (hand[j] == 0) {
+					continue;
+				}
+				SwapTile(hand, j, secondDraw);
+				if (originalShanten - CalculateShanten(hand) < 2) {
+					RevertSwap(hand, j, secondDraw);
+					continue;
+				}
+				for (size_t k = 0; k < hand.size(); ++k) {
+					if (hand[k] == 0) {
+						continue;
+					}
+					SwapTile(hand, k, thirdDraw);
+					int shanten = CalculateShanten(hand);
+					int shantenDiff = originalShanten - shanten;
+					if (shantenDiff > bestShantenDiff) {
+						bestShantenDiff = shantenDiff;
+					}
+					RevertSwap(hand, k, thirdDraw);
+				}
+				RevertSwap(hand, j, secondDraw);
+			}
+			RevertSwap(hand, i, firstDraw);
+			if (shanten_map.find(i) == shanten_map.end()) {
+				shanten_map.insert({ i, ImprovementCount() });
 			}
 			auto& counter = shanten_map[i];
 			if (bestShantenDiff < 0) {
