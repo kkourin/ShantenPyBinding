@@ -28,6 +28,7 @@ PYBIND11_MODULE(ShantenLib, m) {
         .def("GetTwoStepCounts", &ShantenCalculator::CalculateTwoStep)
         .def("GetThreeStepCounts", &ShantenCalculator::CalculateThreeStep)
         .def("GetThreeStepOnlyCounts", &ShantenCalculator::CalculateThreeStepOnly)
+        .def("GetThreeStepOnlyCountsThreaded", &ShantenCalculator::CalculateThreeStepOnlyThreaded)
         .def("GetOneShantenCounts", &ShantenCalculator::GetOneShantenCounts)
         .def("GetShanten", &ShantenCalculator::CalculateShanten);
         

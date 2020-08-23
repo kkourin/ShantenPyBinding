@@ -1,5 +1,7 @@
 #include "ShantenCalculator.h"
 #include <iostream>
+#include <future>
+#include <random>
 
 int ShantenCalculator::CalculateShanten(std::vector<int>& hand)
 {
@@ -43,9 +45,6 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 				RevertSwap(hand, j, secondDraw);
 			}
 			RevertSwap(hand, i, firstDraw);
-			if (shanten_map.find(i) == shanten_map.end()) {
-				shanten_map.insert({ i, ImprovementCount() });
-			}
 			auto& counter = shanten_map[i];
 			if (bestShantenDiff < 0) {
 				counter.Neg += weight;
@@ -112,9 +111,6 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 				RevertSwap(hand, j, secondDraw);
 			}
 			RevertSwap(hand, i, firstDraw);
-			if (shanten_map.find(i) == shanten_map.end()) {
-				shanten_map.insert({i, ImprovementCount() });
-			}
 			auto& counter = shanten_map[i];
 			if (bestShantenDiff < 0) {
 				counter.Neg += weight;
@@ -138,22 +134,17 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 	return shanten_map;
 }
 
-
-std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateThreeStepOnly(std::vector<int> hand, std::vector<int> wall)
-{
+std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::ThreeStepOnlyWallSection(
+	std::vector<int> hand,
+	const int originalShanten,
+	std::vector<std::pair<std::tuple<int, int, int>, int>>::iterator begin,
+	std::vector<std::pair<std::tuple<int, int, int>, int>>::iterator end
+) {
 	std::map<int, ImprovementCount> shanten_map;
-
-	auto wallTriples = WallTriples(wall);
-
-	int originalShanten = CalculateShanten(hand);
 	int iters = 0;
-	for (auto elem : wallTriples)
+	for (;begin != end; ++begin)
 	{
-		/*
-		if (iters % 100 == 0) {
-			std::cout << "progress(" << iters << "/" << wallTriples.size() << ")" << std::endl;
-		}
-		*/
+		auto& elem = *begin;
 		const auto& tuple = elem.first;
 		int firstDraw = std::get<0>(tuple);
 		int secondDraw = std::get<1>(tuple);
@@ -194,9 +185,6 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 				RevertSwap(hand, j, secondDraw);
 			}
 			RevertSwap(hand, i, firstDraw);
-			if (shanten_map.find(i) == shanten_map.end()) {
-				shanten_map.insert({ i, ImprovementCount() });
-			}
 			auto& counter = shanten_map[i];
 			if (bestShantenDiff < 0) {
 				counter.Neg += weight;
@@ -216,8 +204,61 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 		}
 		iters += 1;
 	}
-
 	return shanten_map;
+
+}
+
+std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateThreeStepOnlyThreaded(std::vector<int> hand, std::vector<int> wall, int num_threads) {
+	auto wallTriples = WallTriples(wall);
+	int originalShanten = CalculateShanten(hand);
+
+	// Shuffle triples for more uniform work distribution across threads.
+	auto rng = std::default_random_engine{ std::random_device{}() }; // Create PRNG from seed.
+	std::shuffle(std::begin(wallTriples), std::end(wallTriples), rng);
+
+	int base_chunk_size = wallTriples.size() / num_threads;
+	int rem = wallTriples.size() % num_threads;
+	std::vector<std::future<std::map<int, ShantenCalculator::ImprovementCount>>> results;
+	auto cur = wallTriples.begin();
+	for (int thread_no = 0; thread_no < num_threads; ++thread_no) {
+		int chunk_size = base_chunk_size;
+		// Add remainder parts.
+		if (thread_no < rem) {
+			chunk_size += 1;
+		}
+
+		auto chunk_end = cur + chunk_size;
+		results.push_back(std::async(
+			std::launch::async,
+			&ShantenCalculator::ThreeStepOnlyWallSection,
+			this,
+			hand,
+			originalShanten,
+			cur,
+			chunk_end
+		));
+
+		cur = chunk_end;
+	}
+
+	std::map<int, ShantenCalculator::ImprovementCount> combined_shanten_map;
+	// TODO: Could use accumulate instead
+	for (auto& result : results) {
+		auto shanten_map = result.get();
+		for (auto& tile : shanten_map) {
+			// Tile -> ImprovementCount
+			combined_shanten_map[tile.first] += tile.second;
+		}
+	}
+
+	return combined_shanten_map;
+}
+
+std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateThreeStepOnly(std::vector<int> hand, std::vector<int> wall)
+{
+	auto wallTriples = WallTriples(wall);
+	int originalShanten = CalculateShanten(hand);
+	return ThreeStepOnlyWallSection(hand, originalShanten, wallTriples.begin(), wallTriples.end());
 }
 
 
@@ -238,9 +279,6 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::GetOneShan
 			SwapTile(hand, i, draw);
 			int shanten = CalculateShanten(hand);
 			int shantenDiff = originalShanten - shanten;
-			if (shanten_map.find(i) == shanten_map.end()) {
-				shanten_map.insert({ i, ImprovementCount() });
-			}
 			auto& counter = shanten_map[i];
 			if (shantenDiff < 0) {
 				counter.Neg += weight;

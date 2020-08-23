@@ -2,6 +2,7 @@
 from ShantenLib import ShantenCalculator
 import pprint
 from random import shuffle
+import time
 
 def parseTenhouHand(hand):
     buffer = []
@@ -76,11 +77,11 @@ def runTests():
     ]
     hand6 = parseTenhouHand("99m257779p345669s")
 
-    printResult(s.GetTwoStepCounts(hand1, subtractHand(wall, hand1)))
-    printResult(s.GetTwoStepCounts(hand2, subtractHand(wall, hand2)))
-    printResult(s.GetTwoStepCounts(hand3, subtractHand(wall, hand3)))
-    printResult(s.GetTwoStepCounts(hand4, subtractHand(wall, hand4)))
-    printResult(s.GetTwoStepCounts(hand5, subtractHand(wall, hand5)))
+    #printResult(s.GetTwoStepCounts(hand1, subtractHand(wall, hand1)))
+    #printResult(s.GetTwoStepCounts(hand2, subtractHand(wall, hand2)))
+    #printResult(s.GetTwoStepCounts(hand3, subtractHand(wall, hand3)))
+    #printResult(s.GetTwoStepCounts(hand4, subtractHand(wall, hand4)))
+    #printResult(s.GetTwoStepCounts(hand5, subtractHand(wall, hand5)))
 
 
     #pprint.PrettyPrinter(indent=4).pprint(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
@@ -92,8 +93,18 @@ def runTests():
     #print("test");
     printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
     printResult(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
-    printResult(s.GetThreeStepOnlyCounts(hand6, subtractHand(wall, hand6)))
-    printResult(s.GetThreeStepCounts(hand6, subtractHand(wall, hand6)))
+    print("hi")
+    start = time.time_ns();
+    for _ in range(1):
+        printResult(s.GetThreeStepOnlyCountsThreaded(hand6, subtractHand(wall, hand6), 8))
+    end = time.time_ns();
+    print("time: {0}".format((end - start) / 1000000))
+    start = time.time_ns();
+    for _ in range(1):
+        printResult(s.GetThreeStepOnlyCounts(hand6, subtractHand(wall, hand6)))
+    end = time.time_ns();
+    print("time: {0}".format((end - start) / 1000000))
+
 def checkDiff(s, hand, wall):
     shanten = s.GetShanten(hand) - 1
     if (shanten != 1):
