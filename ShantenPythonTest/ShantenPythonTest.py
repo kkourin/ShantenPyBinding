@@ -76,6 +76,7 @@ def runTests():
       0,0,0,0,0,0,0
     ]
     hand6 = parseTenhouHand("99m257779p345669s")
+    hand7 = parseTenhouHand("238m079p144668s37z")
 
     #printResult(s.GetTwoStepCounts(hand1, subtractHand(wall, hand1)))
     #printResult(s.GetTwoStepCounts(hand2, subtractHand(wall, hand2)))
@@ -91,20 +92,27 @@ def runTests():
 
     #l = s.GetThreeStepCounts(hand6, subtractHand(wall, hand6))
     #print("test");
-    printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
-    printResult(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
+    #printResult(s.GetOneShantenCounts(hand6, subtractHand(wall, hand6)))
+    #printResult(s.GetTwoStepCounts(hand6, subtractHand(wall, hand6)))
     print("hi")
     start = time.time_ns();
     for _ in range(1):
-        printResult(s.GetThreeStepOnlyCountsThreaded(hand6, subtractHand(wall, hand6), 8))
+        printResult(s.GetThreeStepOnlyCountsThreaded(hand7, subtractHand(wall, hand7), 8))
     end = time.time_ns();
     print("time: {0}".format((end - start) / 1000000))
     start = time.time_ns();
     for _ in range(1):
-        printResult(s.GetThreeStepOnlyCounts(hand6, subtractHand(wall, hand6)))
+        printResult(s.GetThreeStepOnlyCounts(hand7, subtractHand(wall, hand7)))
     end = time.time_ns();
     print("time: {0}".format((end - start) / 1000000))
 
+    start = time.time_ns();
+    for _ in range(1):
+        printResult(s.GetThreeStepRecur(hand7, subtractHand(wall, hand7)))
+    end = time.time_ns();
+    print("time: {0}".format((end - start) / 1000000))
+
+    
 def checkDiff(s, hand, wall):
     shanten = s.GetShanten(hand) - 1
     if (shanten != 1):

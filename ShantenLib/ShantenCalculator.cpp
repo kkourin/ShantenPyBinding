@@ -2,6 +2,7 @@
 #include <iostream>
 #include <future>
 #include <random>
+#include <algorithm>
 
 int ShantenCalculator::CalculateShanten(std::vector<int>& hand)
 {
@@ -261,6 +262,142 @@ std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateT
 	return ThreeStepOnlyWallSection(hand, originalShanten, wallTriples.begin(), wallTriples.end());
 }
 
+std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateThreeStepRecur(std::vector<int> hand, std::vector<int> wall) {
+	return CalculateStepRecur(hand, wall, 3);
+}
+
+std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateStepRecur(std::vector<int> hand, std::vector<int> wall, int steps) {
+	int original_shanten = CalculateShanten(hand);
+	std::map<int, ShantenCalculator::ImprovementCount> combined_shanten_map;
+	for (int tile_type = 0; tile_type < hand.size(); ++tile_type) {
+		int tile_count = hand[tile_type];
+		if (tile_count == 0) {
+			continue;
+		}
+
+		std::vector<int> discarded(hand);
+		--discarded[tile_type];
+
+		int paths = 1;
+		int cur_depth = 0;
+		int num_paths = RecurShanten(discarded, wall, original_shanten, cur_depth, paths, steps - 1); // steps are zero indexed
+		combined_shanten_map[tile_type] = { 0, 0, 0, 0, num_paths };
+	}
+
+	return combined_shanten_map;
+}
+
+int ShantenCalculator::RecurShanten(std::vector<int>& hand, std::vector<int>& wall, int cur_shanten, int cur_depth, int cur_paths, int max_depth) {
+	int ret = 0;
+	for (int wall_tile_type = 0; wall_tile_type < wall.size(); ++wall_tile_type) {
+		int wall_tile_count = wall[wall_tile_type];
+		if (wall_tile_count == 0) {
+			continue;
+		}
+		int new_num_paths = cur_paths * wall_tile_count;
+
+		// Add tile to hand.
+		--wall[wall_tile_type];
+		++hand[wall_tile_type];
+		int new_shanten = CalculateShanten(hand);
+		// Check for improvement.
+		if (new_shanten < cur_shanten) {
+			if (cur_depth == max_depth) {
+				ret += new_num_paths;
+			}
+			else {
+				int best_paths = 0;
+				// Otherwise recurse.
+				for (int hand_tile_type = 0; hand_tile_type < hand.size(); ++hand_tile_type) {
+					int hand_tile_count = hand[hand_tile_type];
+					if (hand_tile_count == 0) {
+						continue;
+					}
+					--hand[hand_tile_type];
+					best_paths = std::max(best_paths, RecurShanten(hand, wall, new_shanten, cur_depth + 1, new_num_paths, max_depth));
+
+					++hand[hand_tile_type];
+				}
+				ret += best_paths;
+
+			}
+
+
+		}
+
+		// Revert adding tile to hand.
+		--hand[wall_tile_type];
+		++wall[wall_tile_type];
+	}
+	return ret;
+}
+
+void ShantenCalculator::print_hand(std::vector<int> hand) {
+	bool had_m = false;
+	bool had_p = false;
+	bool had_s = false;
+	bool had_z = false;
+	for (int i = 0; i < 9; i++) {
+		if (hand[i] > 0) {
+			had_m = true;
+			for (int j = 0; j < hand[i]; ++j) {
+				std::cout << (i % 9) + 1;
+			}
+		}
+	}
+	if (had_m) {
+		std::cout << 'm';
+	}
+	for (int i = 9; i < 18; i++) {
+		if (hand[i] > 0) {
+			had_p = true;
+			for (int j = 0; j < hand[i]; ++j) {
+				std::cout << (i % 9) + 1;
+			}
+		}
+	}
+	if (had_p) {
+		std::cout << 'p';
+	}
+	for (int i = 18; i < 27; i++) {
+		if (hand[i] > 0) {
+			had_s = true;
+			for (int j = 0; j < hand[i]; ++j) {
+				std::cout << (i % 9) + 1;
+			}
+		}
+	}
+	if (had_s) {
+		std::cout << 's';
+	}
+	for (int i = 27; i < 34; i++) {
+		if (hand[i] > 0) {
+			had_z = true;
+			for (int j = 0; j < hand[i]; ++j) {
+				std::cout << (i % 9) + 1;
+			}
+		}
+	}
+	if (had_z) {
+		std::cout << 'z';
+	}
+
+
+	std::cout << std::endl;
+}
+
+void ShantenCalculator::print_tile(int n) {
+	std::cout << (n % 9) + 1;
+	if (n < 9) {
+		std::cout << 'm';
+	} else if (n < 18) {
+		std::cout << 'p';
+	} else if (n < 27) {
+		std::cout << 's';
+	} else {
+		std::cout << 'z';
+	}
+}
 
 std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::GetOneShantenCounts(std::vector<int> hand, std::vector<int> wall)
 {

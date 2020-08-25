@@ -31,6 +31,7 @@ class ShantenCalculator {
         std::map<int, ImprovementCount> CalculateThreeStep(std::vector<int> hand, std::vector<int> wall);
         std::map<int, ImprovementCount> CalculateThreeStepOnly(std::vector<int> hand, std::vector<int> wall);
         std::map<int, ImprovementCount> CalculateThreeStepOnlyThreaded(std::vector<int> hand, std::vector<int> wall, int num_threads);
+        std::map<int, ImprovementCount> CalculateThreeStepRecur(std::vector<int> hand, std::vector<int> wall);
         std::map<int, ImprovementCount> GetOneShantenCounts(std::vector<int> hand, std::vector<int> wall);
         int GetShanten(std::vector<int> hand);
         static std::map<std::pair<int, int>, int> WallPairs(std::vector<int> wall);
@@ -40,12 +41,15 @@ class ShantenCalculator {
         Calsht calsht;
         void SwapTile(std::vector<int>& hand, int tile1, int tile2);
         void RevertSwap(std::vector<int>& hand, int tile1, int tile2);
+        std::map<int, ImprovementCount> CalculateStepRecur(std::vector<int> hand, std::vector<int> wall, int steps);
+        int RecurShanten(std::vector<int>& hand, std::vector<int>& wall, int cur_shanten, int cur_depth, int cur_paths, int max_depth);
         std::map<int, ShantenCalculator::ImprovementCount> ThreeStepOnlyWallSection(
             std::vector<int> hand,
             const int originalShanten,
             std::vector<std::pair<std::tuple<int, int, int>, int>>::iterator begin,
             std::vector<std::pair<std::tuple<int, int, int>, int>>::iterator end
         );
-
+        static void print_hand(std::vector<int> hand);
+        static void print_tile(int n);
 
 };
