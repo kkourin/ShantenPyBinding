@@ -151,7 +151,8 @@
     <ClCompile Include="ShantenCalculator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="calsht.h" />
+    <ClInclude Include="calsht.hpp" />
+    <ClInclude Include="constant.hpp" />
     <ClInclude Include="ShantenCalculator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

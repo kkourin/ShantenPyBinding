@@ -3,14 +3,16 @@
 #include <future>
 #include <random>
 #include <algorithm>
+#include <numeric>
 
 int ShantenCalculator::CalculateShanten(std::vector<int>& hand)
 {
 	int* hand_ptr = &hand[0];
 	int num_tiles = std::accumulate(hand.begin(), hand.end(), 0);
 	int num_groups = (num_tiles - 2) / 3;
-	int mode;
-	return calsht(hand_ptr, num_groups, mode);
+	int mode = 7; // 7 = b111
+	auto p = calsht(hand, num_groups, mode);
+	return std::get<0>(p);
 }
 
 std::map<int, ShantenCalculator::ImprovementCount> ShantenCalculator::CalculateTwoStep(std::vector<int> hand, std::vector<int> wall)

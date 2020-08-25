@@ -26,10 +26,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="calsht.h">
+    <ClInclude Include="ShantenCalculator.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShantenCalculator.h">
+    <ClInclude Include="calsht.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="constant.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
